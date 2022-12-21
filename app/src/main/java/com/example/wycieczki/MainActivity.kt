@@ -2,6 +2,8 @@ package com.example.wycieczki
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.widget.Button
 import android.widget.CalendarView
 import android.widget.EditText
@@ -9,6 +11,7 @@ import android.widget.TextView
 import org.w3c.dom.Text
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 fun parseDate(date: String): Long {
     val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
@@ -16,16 +19,23 @@ fun parseDate(date: String): Long {
     return parsedDate.time
 }
 
+fun convertMillisecondsToDays(milliseconds: Long): Long {
+    return TimeUnit.MILLISECONDS.toDays(milliseconds)
+}
+
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
+        findViewById<TextView>(R.id.startDateTextView).text=""
+        findViewById<TextView>(R.id.endDateTextView).text=""
         val calendarView = findViewById<CalendarView>(R.id.calendarView)
         val destinationEditText = findViewById<EditText>(R.id.destination)
         val notesEditText = findViewById<EditText>(R.id.notes)
-
-        data class Trip(val id: Long, val startDate: Long, val endDate: Long, val tripTime: Long, val destination: String, val notes: String)
+        val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val calendar = Calendar.getInstance()
+        val currentDate = calendar.time
+        val formattedDate = formatter.format(currentDate)
 
         calendarView.setOnDateChangeListener { view, year, month, dayOfMonth ->
             val selectedDate = "$year-${month + 1}-$dayOfMonth"
@@ -35,13 +45,27 @@ class MainActivity : AppCompatActivity() {
             } else if (findViewById<TextView>(R.id.endDateTextView).text.isEmpty()) {
                 findViewById<TextView>(R.id.endDateTextView).text = selectedDate
             }
+
         }
+
+        findViewById<Button>(R.id.submit_button).setOnClickListener {
+            if (parseDate(formattedDate.toString()) > parseDate(findViewById<TextView>(R.id.startDateTextView).text.toString())){
+                findViewById<TextView>(R.id.error).text="Trip date in the past!"
+            }
+            else{
+                findViewById<TextView>(R.id.error).setTextColor(resources.getColor(R.color.white))
+                var time = parseDate(findViewById<TextView>(R.id.endDateTextView).text.toString()) - parseDate(findViewById<TextView>(R.id.startDateTextView).text.toString())
+                findViewById<TextView>(R.id.error).text=(convertMillisecondsToDays(time)).toString()
+            }
+        }
+
 
         findViewById<Button>(R.id.reset).setOnClickListener {
             findViewById<TextView>(R.id.startDateTextView).text = ""
             findViewById<TextView>(R.id.endDateTextView).text = ""
             findViewById<EditText>(R.id.destination).text.clear()
             findViewById<EditText>(R.id.notes).text.clear()
+            findViewById<TextView>(R.id.error).text = ""
         }
     }
 }
