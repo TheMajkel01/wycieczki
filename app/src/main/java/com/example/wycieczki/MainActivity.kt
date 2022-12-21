@@ -50,6 +50,7 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.submit_button).setOnClickListener {
             if (parseDate(formattedDate.toString()) > parseDate(findViewById<TextView>(R.id.startDateTextView).text.toString())){
+                findViewById<TextView>(R.id.error).setTextColor(-0x10000)
                 findViewById<TextView>(R.id.error).text="Trip date in the past!"
             }
             else{
