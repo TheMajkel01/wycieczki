@@ -36,6 +36,7 @@ class MainActivity : AppCompatActivity() {
         val calendar = Calendar.getInstance()
         val currentDate = calendar.time
         val formattedDate = formatter.format(currentDate)
+        val maxdate = convertMillisecondsToDays(parseDate(formattedDate.toString())) + 730
 
         calendarView.setOnDateChangeListener { view, year, month, dayOfMonth ->
             val selectedDate = "$year-${month + 1}-$dayOfMonth"
@@ -49,6 +50,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.submit_button).setOnClickListener {
+            if(convertMillisecondsToDays(parseDate(findViewById<TextView>(R.id.startDateTextView).text.toString())) > maxdate  || convertMillisecondsToDays(parseDate(findViewById<TextView>(R.id.endDateTextView).text.toString())) > maxdate){
+                findViewById<TextView>(R.id.error).setTextColor(-0x10000)
+                findViewById<TextView>(R.id.error).text="Date 2 or more years in the future (2 max)"
+            }else{
+
             if (parseDate(formattedDate.toString()) > parseDate(findViewById<TextView>(R.id.startDateTextView).text.toString())){
                 findViewById<TextView>(R.id.error).setTextColor(-0x10000)
                 findViewById<TextView>(R.id.error).text="Trip date in the past!"
@@ -57,7 +63,7 @@ class MainActivity : AppCompatActivity() {
                 findViewById<TextView>(R.id.error).setTextColor(resources.getColor(R.color.white))
                 var time = parseDate(findViewById<TextView>(R.id.endDateTextView).text.toString()) - parseDate(findViewById<TextView>(R.id.startDateTextView).text.toString())
                 findViewById<TextView>(R.id.error).text=(convertMillisecondsToDays(time)).toString()
-            }
+            }}
         }
 
 
